@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LINEユーザー情報取得</title>
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+</head>
+<body>
+  <h1>ようこそ</h1>
+  <div id="status">読み込み中...</div>
+
+  <script>
+    const GAS_URL = '<<GASのウェブアプリURL>>'; // GASのdoPost URL
+
+    async function sendUserInfoToGAS(profile) {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: profile.userId,
+          displayName: profile.displayName
+        })
+      });
+
+      document.getElementById("status").textContent = "登録しました: " + profile.displayName;
+    }
+
+    liff.init({ liffId: '<<あなたのLINEミニアプリID>>' })
+      .then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        } else {
+          liff.getProfile().then(profile => {
+            sendUserInfoToGAS(profile);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("LIFF init error", err);
+        document.getElementById("status").textContent = "エラー：" + err;
+      });
+  </script>
+</body>
+</html>
